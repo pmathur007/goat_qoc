@@ -56,6 +56,10 @@ def reduced_ideal_rydberg_hamiltonian(drive_strength, phase, extra_parameters=No
 
     H01 = Omega * (s["01"] * s["0r"].dag()) + Omega_conj * (s["0r"] * s["01"].dag())
     H11 = Omega_enhanced * (s["11"] * s["W"].dag()) + Omega_conj_enhanced * (s["W"] * s["11"].dag())
+    if extra_parameters is not None:
+        detuning = extra_parameters["detuning"]
+        H01 = H01 - detuning * (s["0r"] * s["0r"].dag())
+        H11 = H11 - detuning * (s["W"] * s["W"].dag())
 
     return H01 + H11
 
@@ -95,10 +99,14 @@ def simulate_gate(hamiltonian_name, drive_strength_func, phase_func, t_min, t_ma
                          phase_func,
                          extra_parameters)
     
-    options = qutip.Options(max_step=0.01, atol=1e-12, rtol=1e-10, method="dop853")
-    results = []
-    for psi0 in psi0s:
-        results.append(qutip.sesolve(H, psi0, ts, [], options=options))
+    options = {
+        "max_step": 0.01,
+        "atol": 1e-12,
+        "rtol": 1e-10,
+        "method": "dop853"
+    }
+
+    results = [qutip.sesolve(H, psi0, ts, e_ops=None, options=options) for psi0 in psi0s]
     
     if plot:
         plot_populations(results, psi0_strs, ts)

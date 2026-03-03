@@ -47,9 +47,9 @@ def make_ode_rhs(H0, H_controls, control_funcs, control_param_derivs, control_ex
 
         # Built H(t)
         H = H0.copy()
+        c = control_funcs(t, alpha, control_extra_params=control_extra_params)
         for k in range(n_controls):
-            ck = control_funcs[k](t, alpha, control_extra_params=control_extra_params)
-            H = H + ck * H_controls[k]
+            H = H + c[k] * H_controls[k]
 
         # get derivatives of H w.r.t. alpha
         dc = control_param_derivs(t, alpha, control_extra_params=control_extra_params) # shape (n_controls, C)
@@ -84,9 +84,9 @@ def make_unitary_hessian_ode_rhs(H0, H_controls, control_funcs, control_param_de
 
         # Build H(t)
         H = H0.copy()
+        c = control_funcs(t, alpha, control_extra_params=control_extra_params)
         for k in range(n_controls):
-            ck = control_funcs[k](t, alpha, control_extra_params=control_extra_params)
-            H = H + ck * H_controls[k]
+            H = H + c[k] * H_controls[k]
         
         # get derivatives of H w.r.t. alpha
         dc = control_param_derivs(t, alpha, control_extra_params=control_extra_params) # shape (n_controls, C)
