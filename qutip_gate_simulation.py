@@ -2,27 +2,11 @@ import qutip
 import numpy as np
 import matplotlib.pyplot as plt
 
-# define basis states
+# finite blockade case
 
-ideal_rydberg_basis = {
-    "00": qutip.basis(9, 0),
-    "01": qutip.basis(9, 1),
-    "0r": qutip.basis(9, 2),
-    "10": qutip.basis(9, 3),
-    "11": qutip.basis(9, 4),
-    "1r": qutip.basis(9, 5),
-    "r0": qutip.basis(9, 6),
-    "r1": qutip.basis(9, 7),
-    "rr": qutip.basis(9, 8)
-}
-
-reduced_ideal_rydberg_basis = {
-    "01": qutip.basis(4, 0),
-    "11": qutip.basis(4, 1),
-    "0r": qutip.basis(4, 2),
-    "W": qutip.basis(4, 3)
-}
-
+ideal_rydberg_basis_names = ["00", "01", "0r", "10", "11", "1r", "r0", "r1", "rr"]
+ideal_rydberg_basis = [qutip.basis(9, i) for i in range(9)]
+ideal_rydberg_basis_map = {ideal_rydberg_basis_names[i]: ideal_rydberg_basis[i] for i in range(9)}
 
 # general functions for creating an Rydberg Hamiltonians with arbitrary drive strength and phase profile, but fixed detuning
 def ideal_rydberg_hamiltonian(drive_strength, phase, extra_parameters=None):
@@ -33,7 +17,7 @@ def ideal_rydberg_hamiltonian(drive_strength, phase, extra_parameters=None):
     detuning = extra_parameters["detuning"]
     blockade_strength = extra_parameters["blockade_strength"]
 
-    s = ideal_rydberg_basis
+    s = ideal_rydberg_basis_map
 
     H01 = Omega * (s["01"] * s["0r"].dag()) + Omega_conj * (s["0r"] * s["01"].dag()) - detuning * s["0r"] * s["0r"].dag()
     H10 = Omega * (s["10"] * s["r0"].dag()) + Omega_conj * (s["r0"] * s["10"].dag()) - detuning * s["r0"] * s["r0"].dag()
@@ -44,6 +28,12 @@ def ideal_rydberg_hamiltonian(drive_strength, phase, extra_parameters=None):
 
     return H01 + H10 + H11
 
+# infinite blockade case
+
+reduced_ideal_rydberg_basis_names = ["01", "11", "0r", "W"]
+reduced_ideal_rydberg_basis = [qutip.basis(4, i) for i in range(4)]
+reduced_ideal_rydberg_basis_map = {reduced_ideal_rydberg_basis_names[i]: reduced_ideal_rydberg_basis[i] for i in range(4)}
+
 def reduced_ideal_rydberg_hamiltonian(drive_strength, phase, extra_parameters=None):
     """drive strength should be real"""
     Omega = qutip.coefficient(lambda t: 0.5 * drive_strength(t) * np.exp(1j * phase(t)))
@@ -52,7 +42,7 @@ def reduced_ideal_rydberg_hamiltonian(drive_strength, phase, extra_parameters=No
     Omega_enhanced = qutip.coefficient(lambda t: 0.5 * np.sqrt(2) * drive_strength(t) * np.exp(1j * phase(t)))
     Omega_conj_enhanced = qutip.coefficient(lambda t: 0.5 * np.sqrt(2) * drive_strength(t) * np.exp(-1j * phase(t)))
 
-    s = reduced_ideal_rydberg_basis
+    s = reduced_ideal_rydberg_basis_map
 
     H01 = Omega * (s["01"] * s["0r"].dag()) + Omega_conj * (s["0r"] * s["01"].dag())
     H11 = Omega_enhanced * (s["11"] * s["W"].dag()) + Omega_conj_enhanced * (s["W"] * s["11"].dag())
@@ -71,11 +61,11 @@ def data_from_tstep(t, t_steps, data):
     return data[i]
 
 # utility function for plotting
-def plot_populations(results, psi0_strs, ts):
-    for i in range(len(psi0_strs)):
+def plot_populations(results, psi0_is, psi0_strs, ts):
+    for i in range(len(psi0_is)):
         P0 = np.zeros(ts.size)
         for t in range(ts.size):
-            P0[t] = np.abs(results[i].states[t].full()[i, 0]) ** 2 # IMPORTANT: this assumes that the psi_strs are in basis order!!!! TODO: fix this
+            P0[t] = np.abs(results[i].states[t].full()[psi0_is[i], 0]) ** 2 # IMPORTANT: this assumes that the psi_strs are in basis order!!!! TODO: fix this
         plt.plot(ts, P0, alpha=0.7, label=f"{psi0_strs[i]}")
     plt.ylim((-0.05, 1.05))
     plt.xlabel("$t\\Omega_{\\text{max}}$", fontsize=16)
@@ -87,12 +77,14 @@ def simulate_gate(hamiltonian_name, drive_strength_func, phase_func, t_min, t_ma
     ts = np.linspace(t_min, t_max, nts_sim)
 
     if hamiltonian_name == "ideal_rydberg":
-        psi0_strs = ["00", "01", "10", "11"]
-        psi0s = [ideal_rydberg_basis[psi0_str] for psi0_str in psi0_strs] 
+        psi0_is = [0, 1, 3, 4]
+        psi0_strs = [ideal_rydberg_basis_names[psi0_i] for psi0_i in psi0_is]
+        psi0s = [ideal_rydberg_basis[psi0_i] for psi0_i in psi0_is] 
         hamiltonian_func = ideal_rydberg_hamiltonian
     else: # hamiltonian_name == "reduced_ideal_rydberg"
-        psi0_strs = ["01", "11"] 
-        psi0s = [reduced_ideal_rydberg_basis[psi0_str] for psi0_str in psi0_strs] 
+        psi0_is = [0, 1]
+        psi0_strs = [reduced_ideal_rydberg_basis_names[psi0_i] for psi0_i in psi0_is]
+        psi0s = [reduced_ideal_rydberg_basis[psi0_i] for psi0_i in psi0_is] 
         hamiltonian_func = reduced_ideal_rydberg_hamiltonian
 
     H = hamiltonian_func(drive_strength_func,
@@ -109,7 +101,7 @@ def simulate_gate(hamiltonian_name, drive_strength_func, phase_func, t_min, t_ma
     results = [qutip.sesolve(H, psi0, ts, e_ops=None, options=options) for psi0 in psi0s]
     
     if plot:
-        plot_populations(results, psi0_strs, ts)
+        plot_populations(results, psi0_is, psi0_strs, ts)
 
     return results
 
@@ -126,10 +118,10 @@ def calculate_fidelity(hamiltonian_name, metric, results, single_qubit_phase = 0
                               [0, np.exp(1j * single_qubit_phase), 0, 0],
                               [0, 0, np.exp(1j * single_qubit_phase), 0],
                               [0, 0, 0, np.exp(2j * single_qubit_phase)]])
-        a00 = target_states[0].dag() * sq_gate * qutip.Qobj(results[0].states[-1].full())
-        a01 = target_states[1].dag() * sq_gate * qutip.Qobj(results[1].states[-1].full())
-        a10 = target_states[2].dag() * sq_gate * qutip.Qobj(results[2].states[-1].full())
-        a11 = target_states[3].dag() * sq_gate * qutip.Qobj(results[3].states[-1].full())
+        a00 = target_states[0].dag() * sq_gate * qutip.Qobj(results[0].states[-1].full().flatten()[[0, 1, 3, 4]])
+        a01 = target_states[1].dag() * sq_gate * qutip.Qobj(results[1].states[-1].full().flatten()[[0, 1, 3, 4]])
+        a10 = target_states[2].dag() * sq_gate * qutip.Qobj(results[2].states[-1].full().flatten()[[0, 1, 3, 4]])
+        a11 = target_states[3].dag() * sq_gate * qutip.Qobj(results[3].states[-1].full().flatten()[[0, 1, 3, 4]])
 
         if metric == "TO":
             return (1/20) * (np.abs(a00 + a01 + a10 + a11)**2 
