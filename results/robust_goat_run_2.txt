@@ -1,0 +1,83 @@
+RUNNING THE L-BFGS-B CODE
+
+           * * *
+
+Machine precision = 2.220D-16
+ N =           11     M =           10
+
+At X0         0 variables are exactly at the bounds
+
+At iterate    0    f=  7.84324D-01    |proj g|=  5.10026D-01
+ This problem is unconstrained.
+
+At iterate    1    f=  6.34303D-01    |proj g|=  1.14891D+00
+
+At iterate    2    f=  3.06038D-01    |proj g|=  1.14738D+00
+
+At iterate    3    f=  1.33942D-01    |proj g|=  6.80710D-01
+
+At iterate    4    f=  1.01062D-01    |proj g|=  4.91296D-01
+
+At iterate    5    f=  8.56491D-02    |proj g|=  3.82181D-01
+
+At iterate    6    f=  7.57415D-02    |proj g|=  1.38608D-01
+
+At iterate    7    f=  7.27953D-02    |proj g|=  8.62085D-02
+
+At iterate    8    f=  7.08714D-02    |proj g|=  7.83544D-02
+
+At iterate    9    f=  6.15004D-02    |proj g|=  2.26367D-01
+
+At iterate   10    f=  5.05003D-02    |proj g|=  3.32668D-01
+
+At iterate   11    f=  3.12404D-02    |proj g|=  3.82371D-01
+
+At iterate   12    f=  8.52263D-03    |proj g|=  1.13043D-01
+
+At iterate   13    f=  4.02126D-04    |proj g|=  4.16135D-02
+
+At iterate   14    f=  4.80974D-05    |proj g|=  1.90440D-02
+
+At iterate   15    f=  3.34479D-05    |proj g|=  5.03420D-03
+
+ Bad direction in the line search;
+   refresh the lbfgs memory and restart the iteration.
+
+At iterate   16    f=  2.83770D-05    |proj g|=  5.27574D-03
+
+At iterate   17    f=  2.82247D-05    |proj g|=  1.21056D-02
+
+ Bad direction in the line search;
+   refresh the lbfgs memory and restart the iteration.
+
+At iterate   18    f=  2.08481D-05    |proj g|=  5.96646D-03
+
+At iterate   19    f=  2.05513D-05    |proj g|=  4.54459D-03
+
+At iterate   20    f=  2.05475D-05    |proj g|=  4.26180D-03
+
+At iterate   21    f=  2.05441D-05    |proj g|=  3.91755D-03
+
+At iterate   22    f=  2.05441D-05    |proj g|=  3.91755D-03
+
+           * * *
+
+Tit   = total number of iterations
+Tnf   = total number of function evaluations
+Tnint = total number of segments explored during Cauchy searches
+Skip  = number of BFGS updates skipped
+Nact  = number of active bounds at final generalized Cauchy point
+Projg = norm of the final projected gradient
+F     = final function value
+
+           * * *
+
+   N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
+   11     22     97      3     0     0   3.918D-03   2.054D-05
+  F =   2.0544132761392901E-005
+
+CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH             
+
+ Warning:  more than 10 function and gradient
+   evaluations in the last line search.  Termination
+   may possibly be caused by a bad search direction.

@@ -1,0 +1,91 @@
+ This problem is unconstrained.
+RUNNING THE L-BFGS-B CODE
+
+           * * *
+
+Machine precision = 2.220D-16
+ N =           11     M =           10
+
+At X0         0 variables are exactly at the bounds
+
+At iterate    0    f=  7.91789D-01    |proj g|=  5.52583D-01
+
+At iterate    1    f=  6.50292D-01    |proj g|=  1.18411D+00
+
+At iterate    2    f=  2.45222D-01    |proj g|=  1.19389D+00
+
+At iterate    3    f=  1.15403D-01    |proj g|=  5.98491D-01
+
+At iterate    4    f=  8.00054D-02    |proj g|=  1.86570D-01
+
+At iterate    5    f=  7.65881D-02    |proj g|=  1.54710D-01
+
+At iterate    6    f=  6.71212D-02    |proj g|=  1.84109D-01
+
+At iterate    7    f=  4.35733D-02    |proj g|=  1.60056D-01
+
+At iterate    8    f=  3.60935D-02    |proj g|=  1.31051D-01
+
+At iterate    9    f=  3.48377D-02    |proj g|=  1.92792D-01
+
+At iterate   10    f=  2.63023D-02    |proj g|=  2.25968D-01
+
+At iterate   11    f=  1.04597D-02    |proj g|=  6.83508D-02
+
+At iterate   12    f=  2.54768D-03    |proj g|=  4.70464D-02
+
+At iterate   13    f=  2.52917D-03    |proj g|=  4.47558D-02
+
+ Bad direction in the line search;
+   refresh the lbfgs memory and restart the iteration.
+
+At iterate   14    f=  2.38673D-03    |proj g|=  2.28058D-02
+
+At iterate   15    f=  2.26710D-03    |proj g|=  2.06721D-02
+
+At iterate   16    f=  1.78935D-03    |proj g|=  2.95629D-02
+
+At iterate   17    f=  1.40085D-03    |proj g|=  6.56582D-02
+
+At iterate   18    f=  8.51150D-04    |proj g|=  9.77279D-02
+
+At iterate   19    f=  7.28417D-04    |proj g|=  9.38692D-02
+
+At iterate   20    f=  7.17425D-04    |proj g|=  8.03048D-02
+
+ Bad direction in the line search;
+   refresh the lbfgs memory and restart the iteration.
+
+At iterate   21    f=  6.84999D-04    |proj g|=  4.59595D-02
+
+ Bad direction in the line search;
+   refresh the lbfgs memory and restart the iteration.
+
+At iterate   22    f=  6.73814D-04    |proj g|=  3.51709D-02
+
+ Bad direction in the line search;
+   refresh the lbfgs memory and restart the iteration.
+
+At iterate   23    f=  6.73814D-04    |proj g|=  3.51709D-02
+
+           * * *
+
+Tit   = total number of iterations
+Tnf   = total number of function evaluations
+Tnint = total number of segments explored during Cauchy searches
+Skip  = number of BFGS updates skipped
+Nact  = number of active bounds at final generalized Cauchy point
+Projg = norm of the final projected gradient
+F     = final function value
+
+           * * *
+
+   N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
+   11     23    138      5     0     0   3.517D-02   6.738D-04
+  F =   6.7381411194557825E-004
+
+CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH             
+
+ Warning:  more than 10 function and gradient
+   evaluations in the last line search.  Termination
+   may possibly be caused by a bad search direction.

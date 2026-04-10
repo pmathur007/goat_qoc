@@ -1,0 +1,58 @@
+RUNNING THE L-BFGS-B CODE
+
+           * * *
+
+Machine precision = 2.220D-16
+ N =           11     M =           10
+
+At X0         0 variables are exactly at the bounds
+
+At iterate    0    f=  8.66438D-01    |proj g|=  9.78160D-01
+ This problem is unconstrained.
+
+At iterate    1    f=  7.09071D-01    |proj g|=  8.70571D-01
+
+At iterate    2    f=  2.36859D-01    |proj g|=  7.74444D-01
+
+At iterate    3    f=  2.29825D-01    |proj g|=  8.21999D-01
+
+ Bad direction in the line search;
+   refresh the lbfgs memory and restart the iteration.
+
+At iterate    4    f=  2.15923D-01    |proj g|=  7.92628D-01
+
+At iterate    5    f=  5.90704D-02    |proj g|=  1.12138D+00
+
+At iterate    6    f=  5.57931D-02    |proj g|=  6.43211D-01
+
+ Bad direction in the line search;
+   refresh the lbfgs memory and restart the iteration.
+
+At iterate    7    f=  4.79880D-02    |proj g|=  2.72581D-01
+
+ Bad direction in the line search;
+   refresh the lbfgs memory and restart the iteration.
+
+           * * *
+
+Tit   = total number of iterations
+Tnf   = total number of function evaluations
+Tnint = total number of segments explored during Cauchy searches
+Skip  = number of BFGS updates skipped
+Nact  = number of active bounds at final generalized Cauchy point
+Projg = norm of the final projected gradient
+F     = final function value
+
+           * * *
+
+   N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
+   11      8     94      4     0     0   2.726D-01   4.799D-02
+  F =   4.7987996454169783E-002
+
+ABNORMAL_TERMINATION_IN_LNSRCH                              
+
+ Line search cannot locate an adequate point after MAXLS
+  function and gradient evaluations.
+  Previous x, f and g restored.
+ Possible causes: 1 error in function or gradient evaluation;
+                  2 rounding error dominate computation.

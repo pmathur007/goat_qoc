@@ -66,11 +66,12 @@ def plot_populations(results, psi0_is, psi0_strs, ts):
         P0 = np.zeros(ts.size)
         for t in range(ts.size):
             P0[t] = np.abs(results[i].states[t].full()[psi0_is[i], 0]) ** 2 # IMPORTANT: this assumes that the psi_strs are in basis order!!!! TODO: fix this
-        plt.plot(ts, P0, alpha=0.7, label=f"{psi0_strs[i]}")
+        plt.plot(ts, P0, label=f"{psi0_strs[i]}")
     plt.ylim((-0.05, 1.05))
-    plt.xlabel("$t\\Omega_{\\text{max}}$", fontsize=16)
-    plt.ylabel("Population", fontsize=16)
+    plt.xlabel("$t\\Omega_{\\text{max}}$") # , fontsize=16)
+    plt.ylabel("Population") # , fontsize=16)
     plt.legend(title="State")
+    plt.grid()
     # plt.show()
 
 def simulate_gate(hamiltonian_name, drive_strength_func, phase_func, t_min, t_max, nts_sim, extra_parameters=None, plot=True):

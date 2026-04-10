@@ -1,0 +1,82 @@
+ This problem is unconstrained.
+RUNNING THE L-BFGS-B CODE
+
+           * * *
+
+Machine precision = 2.220D-16
+ N =           11     M =           10
+
+At X0         0 variables are exactly at the bounds
+
+At iterate    0    f=  8.97244D-01    |proj g|=  1.59536D-01
+
+At iterate    1    f=  4.85576D-01    |proj g|=  5.69926D-01
+
+At iterate    2    f=  4.60188D-01    |proj g|=  7.02600D-01
+
+At iterate    3    f=  3.96587D-01    |proj g|=  5.96831D-01
+
+At iterate    4    f=  3.26777D-01    |proj g|=  2.13652D-01
+
+At iterate    5    f=  2.54910D-01    |proj g|=  2.33059D-01
+
+At iterate    6    f=  2.07917D-01    |proj g|=  3.76215D-01
+
+At iterate    7    f=  1.69263D-01    |proj g|=  3.77106D-01
+
+At iterate    8    f=  7.57504D-02    |proj g|=  2.59924D-01
+
+At iterate    9    f=  2.28494D-02    |proj g|=  3.00964D-01
+
+At iterate   10    f=  5.54878D-03    |proj g|=  1.08523D-01
+
+At iterate   11    f=  4.90900D-03    |proj g|=  8.92180D-02
+
+At iterate   12    f=  4.90648D-03    |proj g|=  8.40306D-02
+
+ Bad direction in the line search;
+   refresh the lbfgs memory and restart the iteration.
+
+At iterate   13    f=  4.54021D-03    |proj g|=  4.97779D-02
+
+At iterate   14    f=  4.42930D-03    |proj g|=  7.25974D-02
+
+At iterate   15    f=  3.77267D-03    |proj g|=  1.10898D-01
+
+At iterate   16    f=  3.58237D-03    |proj g|=  1.12257D-01
+
+ Bad direction in the line search;
+   refresh the lbfgs memory and restart the iteration.
+
+At iterate   17    f=  1.69385D-03    |proj g|=  8.20413D-02
+
+At iterate   18    f=  1.23658D-03    |proj g|=  7.77452D-02
+
+ Bad direction in the line search;
+   refresh the lbfgs memory and restart the iteration.
+
+At iterate   19    f=  6.69220D-04    |proj g|=  5.19013D-02
+
+At iterate   20    f=  6.69220D-04    |proj g|=  5.19013D-02
+
+           * * *
+
+Tit   = total number of iterations
+Tnf   = total number of function evaluations
+Tnint = total number of segments explored during Cauchy searches
+Skip  = number of BFGS updates skipped
+Nact  = number of active bounds at final generalized Cauchy point
+Projg = norm of the final projected gradient
+F     = final function value
+
+           * * *
+
+   N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
+   11     20    119      4     0     0   5.190D-02   6.692D-04
+  F =   6.6922022538985434E-004
+
+CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH             
+
+ Warning:  more than 10 function and gradient
+   evaluations in the last line search.  Termination
+   may possibly be caused by a bad search direction.

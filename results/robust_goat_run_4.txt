@@ -1,0 +1,100 @@
+RUNNING THE L-BFGS-B CODE
+
+           * * *
+
+Machine precision = 2.220D-16
+ N =           11     M =           10
+
+At X0         0 variables are exactly at the bounds
+
+At iterate    0    f=  8.95308D-01    |proj g|=  1.78784D-01
+ This problem is unconstrained.
+
+At iterate    1    f=  4.53078D-01    |proj g|=  5.01305D-01
+
+At iterate    2    f=  4.38034D-01    |proj g|=  5.82830D-01
+
+At iterate    3    f=  3.52896D-01    |proj g|=  3.20601D-01
+
+At iterate    4    f=  3.16717D-01    |proj g|=  1.89870D-01
+
+At iterate    5    f=  2.97099D-01    |proj g|=  1.60508D-01
+
+At iterate    6    f=  2.52876D-01    |proj g|=  1.98159D-01
+
+At iterate    7    f=  2.31696D-01    |proj g|=  1.13526D-01
+
+At iterate    8    f=  1.56190D-01    |proj g|=  1.89955D-01
+
+At iterate    9    f=  1.40427D-01    |proj g|=  2.18040D-01
+
+At iterate   10    f=  1.16178D-01    |proj g|=  1.41683D-01
+
+At iterate   11    f=  7.97102D-02    |proj g|=  1.09057D-01
+
+At iterate   12    f=  5.66038D-02    |proj g|=  1.42817D-01
+
+At iterate   13    f=  2.76961D-02    |proj g|=  1.03199D-01
+
+At iterate   14    f=  1.82502D-02    |proj g|=  8.41486D-02
+
+At iterate   15    f=  1.48808D-02    |proj g|=  6.33185D-02
+
+At iterate   16    f=  9.55139D-03    |proj g|=  6.04068D-02
+
+At iterate   17    f=  1.07619D-03    |proj g|=  4.98792D-02
+
+At iterate   18    f=  7.09968D-04    |proj g|=  4.18472D-02
+
+At iterate   19    f=  1.51725D-04    |proj g|=  2.31186D-02
+
+At iterate   20    f=  5.79865D-05    |proj g|=  6.12249D-03
+
+At iterate   21    f=  3.35015D-05    |proj g|=  3.63474D-03
+
+At iterate   22    f=  2.55589D-05    |proj g|=  3.65951D-03
+
+At iterate   23    f=  1.48900D-05    |proj g|=  6.89934D-03
+
+At iterate   24    f=  1.48538D-05    |proj g|=  7.08835D-03
+
+At iterate   25    f=  1.48519D-05    |proj g|=  7.13180D-03
+
+ Bad direction in the line search;
+   refresh the lbfgs memory and restart the iteration.
+
+At iterate   26    f=  9.72666D-06    |proj g|=  3.25654D-03
+
+At iterate   27    f=  9.18125D-06    |proj g|=  4.44806D-03
+
+ Bad direction in the line search;
+   refresh the lbfgs memory and restart the iteration.
+
+At iterate   28    f=  9.16737D-06    |proj g|=  3.89089D-03
+
+ Bad direction in the line search;
+   refresh the lbfgs memory and restart the iteration.
+
+           * * *
+
+Tit   = total number of iterations
+Tnf   = total number of function evaluations
+Tnint = total number of segments explored during Cauchy searches
+Skip  = number of BFGS updates skipped
+Nact  = number of active bounds at final generalized Cauchy point
+Projg = norm of the final projected gradient
+F     = final function value
+
+           * * *
+
+   N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
+   11     29    141      4     0     0   3.891D-03   9.167D-06
+  F =   9.1673682864641411E-006
+
+ABNORMAL_TERMINATION_IN_LNSRCH                              
+
+ Line search cannot locate an adequate point after MAXLS
+  function and gradient evaluations.
+  Previous x, f and g restored.
+ Possible causes: 1 error in function or gradient evaluation;
+                  2 rounding error dominate computation.
