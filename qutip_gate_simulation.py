@@ -127,6 +127,8 @@ def calculate_fidelity(hamiltonian_name, metric, results, single_qubit_phase = 0
         if metric == "TO":
             return (1/20) * (np.abs(a00 + a01 + a10 + a11)**2 
                              + np.abs(a00)**2 + np.abs(a01)**2 + np.abs(a10)**2 + np.abs(a11)**2)
+        elif metric == "Bell":
+            return (1/16) * (np.abs(a00 + a01 + a10 + a11) ** 2)
         else: # metric == "GOAT"
             return (1/4) * np.abs(a00 + a01 + a10 + a11)
     else: # hamiltonian_name == "reduced_ideal_rydberg"
@@ -145,5 +147,7 @@ def calculate_fidelity(hamiltonian_name, metric, results, single_qubit_phase = 0
 
         if metric == "TO":
             return (1/20) * (np.abs(1 + 2*a01 + a11)**2 + (1 + 2*np.abs(a01)**2 + np.abs(a11)**2))
+        elif metric == "Bell":
+            return (1/16) * (np.abs(1 + 2*a01 + a11) ** 2)
         else: # metric == "GOAT"
             return (1/4) * np.abs(1 + 2*a01 + a11)

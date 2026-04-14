@@ -3,7 +3,7 @@ from scipy.integrate import solve_ivp
 from scipy.optimize import minimize, BFGS
 
 from scipy.constants import h
-hbar = h / 2*np.pi
+hbar = h / (2*np.pi)
 
 def pack_complex_list(mats):
     if mats.ndim == 2:
@@ -122,6 +122,65 @@ def make_unitary_hessian_ode_rhs(H0, H_controls, control_funcs, control_param_de
         mats_out = np.vstack([dU_dt[np.newaxis, ...], ddU_dt, dddU_dt])
         return pack_complex_list(mats_out)
 
+    return ode_rhs
+
+def make_robust_ode_rhs(H0, H_controls, control_funcs, control_param_derivs, control_param_hessians, control_param_third_orders, control_extra_params=None):
+    N = H0.shape[0]
+    n_controls = len(H_controls)
+
+    def ode_rhs(t, y, alpha):
+        C = alpha.size
+        n_blocks = 1 + 3*C
+        mats = unpack_complex_vector(y, n_blocks, N)
+        U = mats[0]
+        dUs = mats[1:C+1] # shape (C, N, N)
+        ddUs = mats[C+1:2*C+1] # shape (C, N, N)
+        dddUs = mats[2*C+1:]
+
+        H = H0.copy()
+        c = control_funcs(t, alpha, control_extra_params)
+        for k in range(n_controls):
+            H = H + c[k]*H_controls[k]
+        
+        dc = control_param_derivs(t, alpha, control_extra_params=control_extra_params) # shape (n_controls, C)
+        dH_dalpha = np.zeros((C, N, N), dtype=complex)
+        for i in range(C):
+            for k in range(n_controls):
+                dH_dalpha[i] += dc[k,i] * H_controls[k]
+
+        ddc = control_param_hessians(t, alpha, control_extra_params=control_extra_params)[:, :, 0] # shape (n_controls, C)
+        ddH_ddalpha = np.zeros((C, N, N), dtype=complex)
+        for i in range(C):
+            for k in range(n_controls):
+                ddH_ddalpha[i] += ddc[k,i] * H_controls[k]
+        
+        dddH_dddalpha = np.zeros((C, N, N), dtype=complex)
+
+        dU_dt = -1j * (H @ U)
+
+        ddU_dt = np.zeros((C, N, N), dtype=complex)
+        for i in range(C):
+            ddU_dt[i] = -1j * (H @ dUs[i]) - 1j * (dH_dalpha[i] @ U)
+        
+        dddU_dt = np.zeros((C, N, N), dtype=complex)
+        for i in range(C):
+            dddU_dt[i] = -1j * (ddH_ddalpha[i] @ U + 
+                                dH_dalpha[i] @ dUs[0] +
+                                dH_dalpha[0] @ dUs[i] + 
+                                H @ ddUs[i])
+
+        ddddU_dt = np.zeros((C, N, N), dtype=complex)
+        for i in range(C):
+            ddddU_dt[i] = -1j * (dddH_dddalpha[i] @ U +
+                                 2 * ddH_ddalpha[i] @ dUs[0] +
+                                 ddH_ddalpha[0] @ dUs[i] +
+                                 dH_dalpha[i] @ ddUs[0] +
+                                 2 * dH_dalpha[0] @ ddUs[i] +
+                                 H @ dddUs[i])
+            
+        mats_out = np.vstack([dU_dt[np.newaxis, ...], ddU_dt, dddU_dt, ddddU_dt])
+        return pack_complex_list(mats_out)
+    
     return ode_rhs
 
 def goat_infidelity_and_grad(U_target, U, dU_dalpha_list, single_qubit_phase, single_qubit_phase_weights):
@@ -301,6 +360,50 @@ def to_infidelity_hessian(
 
     return to_hessian(U_target, U, dU, ddU, alpha[-1], single_qubit_phase_weights)
 
+def to_robustness_cost_and_grad(U_target, U, dU, ddU, dddU, single_qubit_phase, single_qubit_phase_weights):
+    N = U.shape[0]
+    C = dU.shape[0]
+    single_qubit_phase_weights = np.array(single_qubit_phase_weights)
+
+    U_sqphase = np.diag(np.exp(1j * single_qubit_phase * single_qubit_phase_weights)) 
+    dU_sqphase = np.diag(1j * single_qubit_phase_weights * np.exp(1j * single_qubit_phase * single_qubit_phase_weights))
+    ddU_sqphase = np.diag(-(single_qubit_phase_weights ** 2) * np.exp(1j * single_qubit_phase * single_qubit_phase_weights))
+    dddU_sqphase = np.diag(-1j * (single_qubit_phase_weights ** 3) * np.exp(1j * single_qubit_phase * single_qubit_phase_weights))
+
+    A = U_target.conj().T @ U_sqphase @ U
+    dAs = np.zeros((C+1, N, N), dtype=complex)
+    ddAs = np.zeros((C+1, N, N), dtype=complex)
+    dddAs = np.zeros((C+1, N, N), dtype=complex)
+    for i in range(C):
+        dAs[i] = U_target.conj().T @ U_sqphase @ dU[i]
+        ddAs[i] = U_target.conj().T @ U_sqphase @ ddU[i]
+        dddAs[i] = U_target.conj().T @ U_sqphase @ dddU[i]
+    dAs[-1] = U_target.conj().T @ dU_sqphase @ U
+    ddAs[-1] = U_target.conj().T @ ddU_sqphase @ U
+    dddAs[-1] = U_target.conj().T @ dddU_sqphase @ U
+
+    tr_A = 1 + 2*A[0,0] + A[1,1]
+    tr_dAs = np.zeros(C+1, dtype=complex)
+    tr_ddAs = np.zeros(C+1, dtype=complex)
+    tr_dddAs = np.zeros(C+1, dtype=complex)
+    for i in range(C+1):
+        tr_dAs[i] = 2*dAs[i][0,0] + dAs[i][1,1]
+        tr_ddAs[i] = 2*ddAs[i][0,0] + ddAs[i][1,1]
+        tr_dddAs[i] = 2*dddAs[i][0,0] + dddAs[i][1,1]
+
+    robustness_cost = (1/10) * np.real(tr_ddAs[0] * np.conj(tr_A) + tr_dAs[0] * np.conj(tr_dAs[0])
+                                       + 2 * ddAs[0][0,0] * np.conj(A[0,0]) + ddAs[0][1,1] * np.conj(A[1,1])
+                                       + 2 * dAs[0][0,0] * np.conj(dAs[0][0,0]) + dAs[0][1,1] * np.conj(dAs[0][1,1]) )
+
+    robustness_grad = np.zeros(C)
+    for i in range(1,C+1):
+        robustness_grad[i-1] = (1/10) * np.real(tr_dddAs[i] * np.conj(tr_A) + 2 * tr_ddAs[i] * np.conj(tr_dAs[0]) + tr_ddAs[0] * np.conj(tr_dAs[i])
+                                              + 2 * dddAs[i][0,0] * np.conj(A[0,0]) + dddAs[i][1,1] * np.conj(A[1,1])
+                                              + 4 * ddAs[i][0,0] * np.conj(dAs[0][0,0]) + 2 * ddAs[i][1,1] * np.conj(dAs[0][1,1]) 
+                                              + 2 * ddAs[0][0,0] * np.conj(dAs[i][0,0]) + ddAs[0][1,1] * np.conj(dAs[i][1,1]) )
+
+    return robustness_cost, robustness_grad
+
 def run_goat_optimization(
         H0,
         H_controls,
@@ -385,7 +488,8 @@ def run_goat_optimization(
         )
     else:
         if optimizer_opts is None:
-            optimizer_opts = {"maxiter": 200, "disp": True, "ftol": 1e-15, "gtol": 1e-15} # for L-BFGS-B
+            # optimizer_opts = {"maxiter": 200, "disp": True, "ftol": 1e-15, "gtol": 1e-15} # for L-BFGS-B
+            optimizer_opts = {"maxiter": 200, "disp": True, "ftol": 1e-15, "gtol": 1e-15} # for BFGS
 
         res = minimize(
             fun=lambda a: eval_cost_and_grad(a[:-1], a[-1])[0],
@@ -393,7 +497,7 @@ def run_goat_optimization(
             jac=lambda a: eval_cost_and_grad(a[:-1], a[-1])[1],
             bounds=alpha_bounds,
             constraints=constraints,
-            method="L-BFGS-B",
+            method="BFGS",
             options=optimizer_opts,
             callback=callback
         )
@@ -424,6 +528,7 @@ def run_goat_optimization_robust(
     control_funcs,
     control_param_derivs,
     control_param_hessians,
+    control_param_third_orders,
     alpha0,
     hamiltonian_params,
     U_target,
@@ -434,33 +539,34 @@ def run_goat_optimization_robust(
     cost_extra_params=None,
     ode_rtol=1e-7,
     ode_atol=1e-9,
+    optimizer_opts=None,
     callback=None,
 ):
     N = H0.shape[0]
     R = hamiltonian_params.size
     C = alpha0.size - 1 + R
 
-    hessian_ode_rhs_func = make_unitary_hessian_ode_rhs(H0, 
-                                                        H_controls, 
-                                                        control_funcs, 
-                                                        control_param_derivs, 
-                                                        control_param_hessians, 
-                                                        control_extra_params=control_extra_params)
+    robust_ode_rhs_func = make_robust_ode_rhs(H0, 
+                                              H_controls,
+                                              control_funcs,
+                                              control_param_derivs,
+                                              control_param_hessians,
+                                              control_param_third_orders,
+                                              control_extra_params=control_extra_params)
     
     fidelity_func = to_infidelity_and_grad
-    hessian_func = to_hessian 
+    robustness_cost_func = to_robustness_cost_and_grad
 
     def eval_cost_and_grad(alpha, single_qubit_gate_phase):
-        n_blocks = 1 + C + C*C 
+        n_blocks = 1 + 3*C
         mats0 = np.zeros((n_blocks, N, N), dtype=complex)
         mats0[0] = np.eye(N, dtype=complex)
         y0 = pack_complex_list(mats0)
 
-
         all_params = np.concatenate([hamiltonian_params, alpha])
 
         sol = solve_ivp(
-            fun=lambda t, y: hessian_ode_rhs_func(t, y, all_params),
+            fun=lambda t, y: robust_ode_rhs_func(t, y, all_params),
             t_span=t_span,
             y0=y0,
             rtol=ode_rtol,
@@ -472,24 +578,37 @@ def run_goat_optimization_robust(
         mats_final = unpack_complex_vector(yf, n_blocks, N)
         U = U_truncator(mats_final[0])
         dU = U_truncator(mats_final[1:C+1])
-        ddU = U_truncator(mats_final[C+1:])
+        ddU = U_truncator(mats_final[C+1:2*C+1])
+        dddU = U_truncator(mats_final[2*C+1:])
 
-        # add hessian terms to cost
         cost, grad = fidelity_func(U_target, U, dU, single_qubit_gate_phase, single_qubit_phase_weights)
-        if cost_extra_params is not None:
-            hessian = hessian_func(U_target, U, dU, ddU, single_qubit_gate_phase, single_qubit_phase_weights) 
+        robustness_cost, robustness_grad = robustness_cost_func(U_target, U, dU, ddU, dddU, single_qubit_gate_phase, single_qubit_phase_weights)
 
-            # TODO: for now this only works for one sensitivity parameter
-            # cost += cost_extra_params["robustness_lambda"] * (grad[0] ** 2)
-            cost += cost_extra_params["robustness_lambda"] * np.abs(grad[0])
-            grad_term = -np.sum(hessian[:R, R:], axis=0)
-            # grad[R:] += cost_extra_params["robustness_lambda"] * 2 * grad[0] * grad_term
-            grad[R:] += cost_extra_params["robustness_lambda"] * grad_term * np.sign(grad_term)
+        # return cost, grad[R:]
+        # return cost - robustness_cost, grad[R:] - robustness_grad
+        print(f"Cost: {cost}, Robustness cost: {robustness_cost}")
 
-        return cost, grad[R:]
+        # return (cost + cost_extra_params["robustness_lambda"] * np.abs(robustness_cost), 
+        #         grad[R:] + cost_extra_params["robustness_lambda"] * np.sign(robustness_cost) * robustness_grad,
+        #         cost,
+        #         robustness_cost)
+        
+        # fid_scale = max(cost, 1e-9)
+        # rob_scale = max(robustness_cost, 1e-9)
 
-    # only support BFGS optimization (for now)
-    optimizer_opts = {"maxiter": 200, "disp": True, "ftol": 1e-15, "gtol": 1e-15} # for L-BFGS-B
+        return (cost + cost_extra_params["robustness_lambda"] * (robustness_cost**2),
+                grad[R:] + cost_extra_params["robustness_lambda"] * 2 * robustness_cost * robustness_grad,
+                cost,
+                robustness_cost)
+
+        # return ( (cost / fid_scale) + cost_extra_params["robustness_lambda"] * ( (robustness_cost / rob_scale) ** 2),
+        #         (grad[R:] / fid_scale) + cost_extra_params["robustness_lambda"] * 2 * (robustness_cost / rob_scale) * (robustness_grad / rob_scale),
+        #         cost,
+                # robustness_cost)
+
+    if optimizer_opts is None: 
+        optimizer_opts = {"maxiter": 1000, "disp": True, "ftol": 1e-15, "gtol": 1e-15} # for L-BFGS-B
+        # optimizer_opts = {"maxiter": 1000, "disp": True, "gtol": 1e-12} # for BFGS
 
     res = minimize(
         fun=lambda a: eval_cost_and_grad(a[:-1], a[-1])[0],
@@ -497,7 +616,7 @@ def run_goat_optimization_robust(
         jac=lambda a: eval_cost_and_grad(a[:-1], a[-1])[1],
         method="L-BFGS-B",
         options=optimizer_opts,
-        callback=callback
+        callback=lambda x: callback(x, eval_cost_and_grad)
     )
 
     return res
