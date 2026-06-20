@@ -4,7 +4,7 @@ from typing import Any
 from utilities import DerivativeData
 
 # References for fidelity metrics
-# [1] S. Machnes, E. Ass´emat, D. Tannor, and F. K. Wilhelm, “Tunable, Flexible, and Effcient Optimization of Control Pulses for Practical Qubits”, Physical Review Letters 120, 150401 (2018).
+# [1] S. Machnes, E. Assémat, D. Tannor, and F. K. Wilhelm, “Tunable, Flexible, and Effcient Optimization of Control Pulses for Practical Qubits”, Physical Review Letters 120, 150401 (2018).
 # [2] S. Jandura and G. Pupillo, “Time-Optimal Two- and Three-Qubit Gates for Rydberg Atoms”, Quantum 6, arXiv:2202.00903 [quant-ph], 712 (2022).
 
 class GOATFunction(ABC):

@@ -13,7 +13,7 @@ class GOATOptimizer:
         
         Args:
             hilbert_dim (int): Dimension of the hilbert space of the unitaries returned by each control segment.
-            control_segments (list[ControlSegmentInterface]): List of control segments in the optimizer.
+            control_segments (list[ControlSegment]): List of control segments in the optimizer.
         """
         self.hilbert_dim = hilbert_dim
         self.control_segments = control_segments
@@ -390,8 +390,7 @@ class GOATOptimizer:
         if initial_params.size != self.n_total_params:
             raise ValueError(f"Expected params.size == {self.n_total_params}, got {initial_params.size}.")
         
-
-        # cost and gradinet function to pass to the optimizer
+        # cost and gradient function to pass to the optimizer
         def cost_and_grad_func(params):
             deriv_request = fidelity_func.get_deriv_request(params=params) # get indices of requested higher-order derivatives, if any
 
